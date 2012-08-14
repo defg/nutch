@@ -125,7 +125,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-2.0-dev</value>
+  <value>Nutch-2.0</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -248,6 +248,20 @@
   This allows selecting non-English language as default one to retrieve.
   It is a useful setting for search engines build for certain national group.
   </description>
+</property>
+
+<property>
+  <name>http.accept</name>
+  <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
+  <description>Value of the "Accept" request header field.
+  </description>
+</property>
+
+<property>
+  <name>http.store.ip.address</name>
+  <value>false</value>
+  <description>Enables us to capture the specific IP address of the 
+  host which we connect to to fetch a page.</description>
 </property>
 
 <!-- FTP properties -->
@@ -679,6 +693,40 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.throughput.threshold.pages</name>
+  <value>-1</value>
+  <description>The threshold of minimum pages per second. If the fetcher downloads less
+  pages per second than the configured threshold, the fetcher stops, preventing slow queue's
+  from stalling the throughput. This threshold must be an integer. This can be useful when
+  fetcher.timelimit.mins is hard to determine. The default value of -1 disables this check.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.sequence</name>
+  <value>5</value>
+  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded,
+  in a row. This setting prevents accidental slow downs from stopping the fetcher.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.check.after</name>
+  <value>5</value>
+  <description>The number of minutes after which the throughput check is enabled.</description>
+</property>
+
+<property>
+  <name>fetcher.queue.depth.multiplier</name>
+  <value>50</value>
+  <description>(EXPERT)The fetcher buffers the incoming URLs into queues based on the [host|domain|IP]
+  (see param fetcher.queue.mode). The depth of the queue is the number of threads times the value of this parameter.
+  A large value requires more memory but can improve the performance of the fetch when the order of the URLS in the fetch list
+  is not optimal.
+  </description>
+</property>
+
 <!-- indexingfilter plugin properties -->
 
 <property>
@@ -909,6 +957,14 @@
   </description>
 </property>
 
+<property>
+  <name>parser.skip.truncated</name>
+  <value>true</value>
+  <description>Boolean value for whether we should skip parsing for truncated documents. By default this 
+  property is activated due to extremely high levels of CPU which parsing can sometimes take.  
+  </description>
+</property>
+
 <!-- urlfilter plugin properties -->
 
 <property>
@@ -1026,6 +1082,15 @@
   </description>
 </property>
 
+<property>
+  <name>lang.identification.only.certain</name>
+  <value>false</value>
+  <description>If set to true with lang.extraction.policy containing identify,
+  the language code returned by Tika will be assigned to the document ONLY
+  if it is deemed certain by Tika.
+  </description>
+</property>
+
 <!-- Temporary Hadoop 0.17.x workaround. -->
 
 <property>
@@ -1056,7 +1121,15 @@
   <description>
   Defines the number of documents to send to Solr in a single update batch.
   Decrease when handling very large documents to prevent Nutch from running
-  out of memory.
+  out of memory. NOTE: It does not explicitly trigger a server side commit.
+  </description>
+</property>
+
+<property>
+  <name>solr.commit.index</name>
+  <value>true</value>
+  <description>
+  When closing the indexer, trigger a commit to the Solr server. 
   </description>
 </property>
 
@@ -1065,26 +1138,34 @@
 <property>
   <name>storage.data.store.class</name>
   <value>org.apache.gora.sql.store.SqlStore</value>
-  <description>Default Gora class for storing data in the SQL Store. 
-  A DataStore implementation for RDBMS with a SQL interface. SqlStore
-  uses JDBC drivers to communicate with the DB.</description>
+  <description>The Gora DataStore class for storing and retrieving data.
+   Currently the following stores are available:
+  
+  org.apache.gora.sql.store.SqlStore 
+    Default store. A DataStore implementation for RDBMS with a SQL interface.
+    SqlStore uses JDBC drivers to communicate with the DB.
+  
+  org.apache.gora.cassandra.store.CassandraStore
+    Gora class for storing data in Apache Cassandra.
+  
+  org.apache.gora.hbase.store.HBaseStore
+    Gora class for storing data in Apache HBase.
+  
+  org.apache.gora.hbase.store.AccumuloStore
+    Gora class for storing data in Apache Accumulo.
+  
+  org.apache.gora.hbase.store.AvroStore
+    Gora class for storing data in Apache Avro.
+    
+  org.apache.gora.hbase.store.DataFileAvroStore
+    Gora class for storing data in Apache Avro. DataFileAvroStore is 
+    a file based store which uses Avro's DataFile{Writer,Reader}'s as a backend.
+    This datastore supports mapreduce.
+    
+  org.apache.gora.hbase.store.MemStore
+    Gora class for storing data in a Memory based implementation for tests.
+  </description>
 </property>
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.cassandra.store.CassandraStore</value>
-  <description>Gora class for storing data in Apache Cassandra</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.HBaseStore</value>
-  <description>Gora class for storing data in Apache HBase</description>
-</property>
--->
 
 <property>
   <name>storage.schema</name>

@@ -51,6 +51,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       if (GeneratorJob.LOG.isDebugEnabled()) {
         GeneratorJob.LOG.debug("Skipping " + url + "; already generated");
       }
+      return;
     }
 
     // If filtering is on don't generate URLs that don't pass URLFilters
@@ -61,11 +62,15 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       if (filter && filters.filter(url) == null)
         return;
     } catch (URLFilterException e) {
-      GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
-      return;
+      if (GeneratorJob.LOG.isWarnEnabled()) {
+        GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+        return;
+      }
     } catch (MalformedURLException e) {
-      GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
-      return;
+      if (GeneratorJob.LOG.isWarnEnabled()) {
+        GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() +")");
+        return;
+      }
     }
 
     // check fetch schedule

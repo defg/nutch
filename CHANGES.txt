@@ -1,6 +1,109 @@
 Nutch Change Log
 
-Release nutchgora - Current Development
+Release 2.1 - Current Development
+
+* NUTCH-1411 nutchgora fetcher.store.content does not work (Alexander Kingson via ferdy) 
+
+* NUTCH-1426 HostDb close() should close store instead of flush (ferdy)
+
+* NUTCH-1425 DbUpdaterJob declares PREV_SIGNATURE on input twice (ferdy)
+
+* NUTCH-1424 fix fetcher timelimit logging (ferdy)
+
+* NUTCH-1423 Remove unused fields in LanguageIndexingFilter (ferdy)
+
+* NUTCH-1306 Add option to not commit and clarify existing solr.commit.size (ferdy)
+
+Release 2.0 (08/06/2012) ddmmyyy
+Full Jira report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12314893
+
+* NUTCH-1391 readdb -stats fires java.io.EOFException (jnioche)
+
+* NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
+
+* NUTCH-1399 TestProtocolHttpClient fails (jnioche)
+
+* NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
+
+* NUTCH-1401 Upgrade to Hadoop 1.0.3  (jnioche)
+
+* NUTCH-1396 Upgrade Tika 1.1 (jnioche)
+
+* NUTCH-1392 -force and -resume arguments being ignored in ParserJob (ferdy via lewismc)
+
+* NUTCH-1379 NPE when reprUrl is null in ParseUtil (ferdy)
+
+* NUTCH-1378 HostDb NullPointerException (ferdy)
+
+* NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
+
+* NUTCH-1364 Add a counter for malformed urls (Jason Trost via lewismc)
+
+* NUTCH-1361 Fix mishandling of malformed urls in generator job (Jason Trost via lewismc)
+
+* NUTCH-1360 Support the storing of IP address connected to when web crawling (lewismc)
+
+* NUTCH-1366 speed up indexing by eliminating the indexreducer (ferdy)
+
+* NUTCH-1362 Fix error handling of urls with empty fields (lewis, ferdy)
+
+* NUTCH-1026 Strip UTF-8 non-character codepoints (markus, ferdy)
+
+* NUTCH-1358 Do not accept bogus arguments (ferdy)
+
+* NUTCH-1349 Make batchId explcit within debug logging and improve CLI (lewismc + ferdy)
+
+* NUTCH-1352 Improve regex urlfilters/normalizers synchronization (ferdy)
+
+* NUTCH-1356 ParseUtil use ExecutorService instead of manually thread handling. (ferdy)
+
+* NUTCH-1355 nutchgora Configure minimum throughput for fetcher (ferdy)
+
+* NUTCH-1354 nutchgora support fetcher.queue.depth.multiplier property (ferdy)
+
+* NUTCH-1353 nutchgora DomainStatistics support crawlId, counter bug and reformatting (ferdy)
+
+* NUTCH-1350 remove unused dependancy because of access restriction (ferdy)
+
+* NUTCH-1205 Upgrade gora modules to 0.2 in ivy/ivy.xml (lewismc, ferdy)
+
+* NUTCH-882 Design a Host table in GORA (jnioche, ab, dogacan, Mathijs Homminga, ferdy)
+
+* NUTCH-1340 Increase scalability by only removing markers when they actually exist for DbUpdaterReducer (ferdy)
+
+* NUTCH-1333 Introduce AvroStore, DataFileAvroStore and Accumulo Datastore implementations (lewismc)
+
+* NUTCH-1312 Nutchgora to send HTTP-accept header (ferdy)
+
+* NUTCH-1311 Add response headers to datastore for the protocol-httpclient plugin (Dan Rosher via ferdy)
+
+* NUTCH-1304 GeneratorMapper.java dosen't return when skipping and already generated mark (Dan Rosher via lewismc)
+
+* NUTCH-1307 Improve formatting of ant targets for clearer project help (lewismc)
+
+* NUTCH-1302 nutchgora job failures should be noticed by submitter (ferdy)
+
+* NUTCH-1298 Pass numTasks to FetcherJob (Dan Rosher via ferdy)
+
+* NUTCH-1289 In distributed mode URL's are not partitioned (Dan Rosher, ferdy)
+
+* NUTCH-1292 Better exception logging and debugging during fetch. (ferdy)
+
+* NUTCH-1263 FetcherJob must put 'fetchTime' on input (ferdy)
+
+* NUTCH-1296 nutchgora fetcher does not show correct 'threads' and 'resuming' properties (ferdy)
+
+* NUTCH-1295 nutchgora restlet dependencies failing when remote repos is down (ferdy)
+
+* NUTCH-965 Skip parsing for truncated documents (alexis, lewismc, ferdy)
+
+* NUTCH-1287 Upgrade to hsqldb 2.2.8 (ferdy)
+
+* NUTCH-1280 language-identifier should have option to use detected value by Tika even when uncertain (ferdy)
+
+* NUTCH-1246 Upgrade to Hadoop 1.0.0 (lewismc)
+
+* NUTCH-1279 Check if limit has been reached in GeneraterReducer must be the first check performance-wise. (ferdy)
 
 * NUTCH-1255 Change ivy.xml of all plugins to remove "nutch.root" property (ferdy)
 

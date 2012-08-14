@@ -19,8 +19,6 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
@@ -35,6 +33,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.GeneratorJob;
+import org.apache.nutch.crawl.URLPartitioner.FetchEntryPartitioner;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -69,6 +68,7 @@ public class FetcherJob extends NutchTool implements Tool {
   static {
     FIELDS.add(WebPage.Field.MARKERS);
     FIELDS.add(WebPage.Field.REPR_URL);
+    FIELDS.add(WebPage.Field.FETCH_TIME);
   }
 
   /**
@@ -110,7 +110,7 @@ public class FetcherJob extends NutchTool implements Tool {
       Utf8 mark = Mark.GENERATE_MARK.checkMark(page);
       if (!NutchJob.shouldProcess(mark, batchId)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
         }
         return;
       }
@@ -166,6 +166,10 @@ public class FetcherJob extends NutchTool implements Tool {
     if (shouldResume != null) {
       getConf().setBoolean(RESUME_KEY, shouldResume);
     }
+    
+    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
+    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, false));
+    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
 
     if (parse != null) {
       getConf().setBoolean(PARSE_KEY, parse);
@@ -179,11 +183,12 @@ public class FetcherJob extends NutchTool implements Tool {
       timelimit = System.currentTimeMillis() + (timelimit * 60 * 1000);
       getConf().setLong("fetcher.timelimit", timelimit);
     }
+    LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
     numJobs = 1;
     currentJob = new NutchJob(getConf(), "fetch");
     Collection<WebPage.Field> fields = getFields(currentJob);
     StorageUtils.initMapperJob(currentJob, fields, IntWritable.class,
-        FetchEntry.class, FetcherMapper.class, PartitionUrlByHost.class, false);
+        FetchEntry.class, FetcherMapper.class, FetchEntryPartitioner.class, false);
     StorageUtils.initReducerJob(currentJob, FetcherReducer.class);
     if (numTasks == null || numTasks < 1) {
       currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt("mapred.map.tasks",
@@ -210,10 +215,6 @@ public class FetcherJob extends NutchTool implements Tool {
       throws Exception {
     LOG.info("FetcherJob: starting");
 
-    LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
-    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
-    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, false));
-    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("FetcherJob: fetching all");
     } else {
@@ -271,12 +272,12 @@ public class FetcherJob extends NutchTool implements Tool {
     String batchId;
 
     String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] " +
-      "[-threads N] [-parse] [-resume] [-numTasks N]\n" +
-      "\tbatchId\tcrawl identifier returned by Generator, or -all for all generated batchId-s\n" +
-      "\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)\n" +
-      "\t-threads N\tnumber of fetching threads per task\n" +
-      "\t-resume\tresume interrupted job\n" +
-      "\t-numTasks N\tif N > 0 then use this many reduce tasks for fetching (default: mapred.map.tasks)";
+      "[-threads N] \n \t \t  [-resume] [-numTasks N]\n" +
+      "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n" +
+      "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n" +
+      "    -threads N    - number of fetching threads per task\n" +
+      "    -resume       - resume interrupted job\n" +
+      "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapred.map.tasks)";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -301,6 +302,8 @@ public class FetcherJob extends NutchTool implements Tool {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       } else if ("-parse".equals(args[i])) {
         parse = true;
+      } else {
+        throw new IllegalArgumentException("arg " +args[i]+ " not recognized");
       }
     }
 

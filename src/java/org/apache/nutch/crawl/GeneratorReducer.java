@@ -17,6 +17,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +53,9 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
   protected void reduce(SelectorEntry key, Iterable<WebPage> values,
       Context context) throws IOException, InterruptedException {
     for (WebPage page : values) {
+      if (count >= limit) {
+        return;
+      }
       if (maxCount > 0) {
         String hostordomain;
         if (byDomain) {
@@ -70,16 +74,13 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
         }
         hostCountMap.put(hostordomain, hostCount + 1);
       }
-      if (count >= limit) {
-        return;
-      }
 
       Mark.GENERATE_MARK.putMark(page, batchId);
       try {
-          context.write(TableUtil.reverseUrl(key.url), page);
+        context.write(TableUtil.reverseUrl(key.url), page);
       } catch (MalformedURLException e) {
-          context.getCounter("Generator", "MALFORMED_URL").increment(1);
-          continue;
+    	context.getCounter("Generator", "MALFORMED_URL").increment(1);
+        continue;
       }
       context.getCounter("Generator", "GENERATE_MARK").increment(1);
       count++;
